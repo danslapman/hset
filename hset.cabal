@@ -1,0 +1,62 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           hset
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/danslapman/hset#readme>
+homepage:       https://github.com/githubuser/hset#readme
+bug-reports:    https://github.com/githubuser/hset/issues
+author:         Daniil Smirnov
+maintainer:     danslapman@gmail.com
+copyright:      2025 Daniil Smirnov
+license:        BSD-3-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/hset
+
+library
+  exposed-modules:
+      Data.HSet
+  other-modules:
+      Paths_hset
+  autogen-modules:
+      Paths_hset
+  hs-source-dirs:
+      src
+  ghc-options: -fplugin GHC.TypeLits.Normalise -fplugin GHC.TypeLits.KnownNat.Solver -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , first-class-families
+    , ghc-typelits-knownnat
+    , ghc-typelits-natnormalise
+    , vector
+  default-language: Haskell2010
+
+test-suite hset-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_hset
+  autogen-modules:
+      Paths_hset
+  hs-source-dirs:
+      test
+  ghc-options: -fplugin GHC.TypeLits.Normalise -fplugin GHC.TypeLits.KnownNat.Solver -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      HUnit
+    , base >=4.7 && <5
+    , first-class-families
+    , ghc-typelits-knownnat
+    , ghc-typelits-natnormalise
+    , hset
+    , vector
+  default-language: Haskell2010
