@@ -17,7 +17,17 @@ true = elemOfType @Bool sut
 p = project @'[Bool, String] sut -- True &# 1 &# HSNil
 ```
 
-Now you can define something like this
+With Reader(T) parametrized with `HSet` you can use this:
+```haskell
+withReaderT (elemOfType @ElemType) $ ...
+
+-- or
+
+withReaderT (project @NarrowerEnv) $ ...
+```
+
+Or, if you are writing FT style you can define something like this:
+
 ```haskell
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
