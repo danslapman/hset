@@ -12,7 +12,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Data.HSet (HSet(), hsempty, (&#), Length, ContainsType, cardinality, NthType, NthElem(..), ElemIndex, HasElem(..), GetElem(..), HasSubset(..)) where
+module Data.HSet (HSet(), hsempty, (&#), Length, ContainsType, cardinality, NthType, NthElem(..), ElemIndex, HasElem(..), GetElem(..), CanProject(..)) where
 
 import Data.HSet.Internal
 import Data.Kind (Type)
@@ -61,12 +61,14 @@ type ElemIndex (t :: Type) (ts :: [Type]) =
   Fcf.Eval (Fcf.FromMaybe Fcf.Stuck Fcf.=<< Fcf.FindIndex (Fcf.TyEq t) ts)
 
 class HasElem (t :: Type) (ts :: [Type]) where
+  -- | Convenient for type apllications
   elemOfType :: HSet ts -> NthType (ElemIndex t ts) ts
 
 instance (NthElem (ElemIndex t ts) ts) => HasElem t ts where
   elemOfType = nthElem (Proxy :: Proxy (ElemIndex t ts))
 
 class GetElem (ts :: [Type]) (t :: Type) where
+  -- | Alternative to `elemOfType` for cases where type application is impossible
   getElem :: Proxy t -> HSet ts -> NthType (ElemIndex t ts) ts
 
 instance (NthElem (ElemIndex t ts) ts) => GetElem ts t where
@@ -85,20 +87,20 @@ instance MatProxies '[] where
 instance (MatProxies ts) => MatProxies (t ': ts) where
   proxies = HSCons (Proxy :: Proxy t) (proxies :: HSet (Proxies ts))
 
-class HasSubset (proj :: [Type]) (src :: [Type]) where
+class CanProject (proj :: [Type]) (src :: [Type]) where
+  -- | Computes a subset of `src` for types in `proj`
   project :: HSet src -> HSet proj
 
-instance HasSubset '[] sx where
+instance CanProject '[] sx where
   project _ = hsempty
 
-instance (GetElem src ph, HasSubset pt src) => HasSubset (ph ': pt) src where
+instance (GetElem src ph, CanProject pt src) => CanProject (ph ': pt) src where
   project src = HSCons (unsafeCoerce (getElem (Proxy :: Proxy ph) src)) (project src :: HSet pt)
 
 instance All Show ts => Show (HSet ts) where
   show HSNil = "HNil"
   show (HSCons x xs) = show x ++ " &# " ++ show xs
 
--- This instance is non-commutative and needs to be fixed
 instance All Eq ts => Eq (HSet ts) where
   HSNil == HSNil = True
   HSCons x xs == HSCons y ys = x == y && xs == ys
