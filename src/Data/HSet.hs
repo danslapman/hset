@@ -7,13 +7,14 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilyDependencies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
-module Data.HSet (HSet(), hsempty, (&#), Length, ContainsType, cardinality, NthType, NthElem(..), ElemIndex, HasElem(..)) where
+module Data.HSet (HSet(), hsempty, (&#), Length, ContainsType, cardinality, NthType, NthElem(..), ElemIndex, HasElem(..), GetElem(..), HasSubset(..)) where
 
+import Data.HSet.Internal
 import Data.Kind (Type)
 import Data.Proxy
 import GHC.TypeLits
@@ -64,3 +65,40 @@ class HasElem (t :: Type) (ts :: [Type]) where
 
 instance (NthElem (ElemIndex t ts) ts) => HasElem t ts where
   elemOfType = nthElem (Proxy :: Proxy (ElemIndex t ts))
+
+class GetElem (ts :: [Type]) (t :: Type) where
+  getElem :: Proxy t -> HSet ts -> NthType (ElemIndex t ts) ts
+
+instance (NthElem (ElemIndex t ts) ts) => GetElem ts t where
+  getElem _ = nthElem (Proxy :: Proxy (ElemIndex t ts))
+
+type family Proxies (ts :: [Type]) = proxies | proxies -> ts where
+  Proxies '[] = '[]
+  Proxies (t ': ts) = Proxy t ': Proxies ts
+
+class MatProxies (ts :: [Type]) where
+  proxies :: HSet (Proxies ts)
+
+instance MatProxies '[] where
+  proxies = hsempty
+
+instance (MatProxies ts) => MatProxies (t ': ts) where
+  proxies = HSCons (Proxy :: Proxy t) (proxies :: HSet (Proxies ts))
+
+class HasSubset (proj :: [Type]) (src :: [Type]) where
+  project :: HSet src -> HSet proj
+
+instance HasSubset '[] sx where
+  project _ = hsempty
+
+instance (GetElem src ph, HasSubset pt src) => HasSubset (ph ': pt) src where
+  project src = HSCons (unsafeCoerce (getElem (Proxy :: Proxy ph) src)) (project src :: HSet pt)
+
+instance All Show ts => Show (HSet ts) where
+  show HSNil = "HNil"
+  show (HSCons x xs) = show x ++ " &# " ++ show xs
+
+-- This instance is non-commutative and needs to be fixed
+instance All Eq ts => Eq (HSet ts) where
+  HSNil == HSNil = True
+  HSCons x xs == HSCons y ys = x == y && xs == ys

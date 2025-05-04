@@ -34,14 +34,29 @@ getNthElemTest =
     TestCase $ assertEqual "nthElem" True (nthElem (Proxy @2) sut)
   ]
 
-elemTest :: Test
-elemTest =
+elemOfTypeTest :: Test
+elemOfTypeTest =
   let sut = (1 :: Int) &# "test" &# True &# hsempty
   in  TestList [
-    TestCase $ assertEqual "nthElem" 1 (elemOfType @Int sut),
-    TestCase $ assertEqual "nthElem" "test" (elemOfType @String sut),
-    TestCase $ assertEqual "nthElem" True (elemOfType @Bool sut)
+    TestCase $ assertEqual "elemOfType" 1 (elemOfType @Int sut),
+    TestCase $ assertEqual "elemOfType" "test" (elemOfType @String sut),
+    TestCase $ assertEqual "elemOfType" True (elemOfType @Bool sut)
   ]
+
+getElemTest :: Test
+getElemTest =
+  let sut = (1 :: Int) &# "test" &# True &# hsempty
+  in  TestList [
+    TestCase $ assertEqual "getElem" 1 (getElem (Proxy @Int) sut),
+    TestCase $ assertEqual "getElem" "test" (getElem (Proxy @String) sut),
+    TestCase $ assertEqual "getElem" True (getElem (Proxy @Bool) sut)
+  ]
+
+getSubsetTest :: Test
+getSubsetTest =
+  let sut = (1 :: Int) &# "test" &# True &# hsempty
+      expected = True &# "test" &# hsempty
+  in TestCase $ assertEqual "project" expected (project sut)
 
 tests :: Test
 tests = 
@@ -49,7 +64,9 @@ tests =
     lengthTest,
     containsTest,
     getNthElemTest,
-    elemTest
+    elemOfTypeTest,
+    getElemTest,
+    getSubsetTest
   ]
 
 main :: IO ()

@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Data.HSet
+      Data.HSet.Internal
   other-modules:
       Paths_hset
   autogen-modules:
