@@ -21,14 +21,9 @@ description:         Please see the README on GitHub at <https://github.com/dans
 
 dependencies:
 - base >= 4.7 && < 5
-- vector
 - first-class-families
-- ghc-typelits-knownnat
-- ghc-typelits-natnormalise
 
 ghc-options:
-- -fplugin GHC.TypeLits.Normalise
-- -fplugin GHC.TypeLits.KnownNat.Solver
 - -Wall
 - -Wcompat
 - -Widentities
