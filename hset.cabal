@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.37.0.
+-- This file has been generated from package.yaml by hpack version 0.39.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -52,6 +52,7 @@ test-suite hset-test
   build-depends:
       HUnit
     , base >=4.7 && <5
+    , doctest
     , first-class-families
     , hset
   default-language: Haskell2010

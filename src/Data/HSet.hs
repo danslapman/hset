@@ -49,6 +49,19 @@ type family NthType (n :: Nat) (ts :: [Type]) where
   NthType n (h ': t) = NthType (n - 1) t
 
 class NthElem (n :: Nat) (ts :: [Type]) where
+  -- | Gets nth element
+  --
+  -- Examples:
+  --
+  -- >>> :set -XDataKinds
+  -- >>> nthElem (Proxy @0) $ (1 :: Int) &# "test" &# True &# hsempty
+  -- 1
+  -- 
+  -- >>> nthElem (Proxy @1) $ (1 :: Int) &# "test" &# True &# hsempty
+  -- "test"
+  --
+  -- >>> nthElem (Proxy @2) $ (1 :: Int) &# "test" &# True &# hsempty
+  -- True
   nthElem :: Proxy n -> HSet ts -> NthType n ts
 
 instance {-# OVERLAPPING #-} NthElem 0 (h ': t) where
@@ -61,7 +74,20 @@ type ElemIndex (t :: Type) (ts :: [Type]) =
   Fcf.Eval (Fcf.FromMaybe Fcf.Stuck Fcf.=<< Fcf.FindIndex (Fcf.TyEq t) ts)
 
 class HasElem (t :: Type) (ts :: [Type]) where
+  -- | Gets element by type
   -- | Convenient for type apllications
+  -- 
+  -- Examples:
+  -- 
+  -- >>> :set -XDataKinds
+  -- >>> elemOfType @Int $ (1 :: Int) &# "test" &# True &# hsempty
+  -- 1
+  -- 
+  -- >>> elemOfType @String $ (1 :: Int) &# "test" &# True &# hsempty
+  -- "test"
+  -- 
+  -- >>> elemOfType @Bool $ (1 :: Int) &# "test" &# True &# hsempty
+  -- True
   elemOfType :: HSet ts -> NthType (ElemIndex t ts) ts
 
 instance (NthElem (ElemIndex t ts) ts) => HasElem t ts where
@@ -69,6 +95,18 @@ instance (NthElem (ElemIndex t ts) ts) => HasElem t ts where
 
 class GetElem (ts :: [Type]) (t :: Type) where
   -- | Alternative to `elemOfType` for cases where type application is impossible
+  --
+  -- Examples:
+  -- 
+  -- >>> :set -XDataKinds
+  -- >>> getElem (Proxy @Int) $ (1 :: Int) &# "test" &# True &# hsempty
+  -- 1
+  -- 
+  -- >>> getElem (Proxy @String) $ (1 :: Int) &# "test" &# True &# hsempty
+  -- "test"
+  -- 
+  -- >>> getElem (Proxy @Bool) $ (1 :: Int) &# "test" &# True &# hsempty
+  -- True
   getElem :: Proxy t -> HSet ts -> NthType (ElemIndex t ts) ts
 
 instance (NthElem (ElemIndex t ts) ts) => GetElem ts t where
@@ -89,6 +127,12 @@ instance (MatProxies ts) => MatProxies (t ': ts) where
 
 class CanProject (proj :: [Type]) (src :: [Type]) where
   -- | Computes a subset of `src` for types in `proj`
+  -- 
+  -- Examples:
+  -- 
+  -- >>> :set -XDataKinds
+  -- >>> project @'[Bool, String] $ (1 :: Int) &# "test" &# True &# hsempty
+  -- True &# "test" &# HNil
   project :: HSet src -> HSet proj
 
 instance CanProject '[] sx where

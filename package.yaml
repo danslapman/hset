@@ -47,3 +47,4 @@ tests:
     dependencies:
     - hset
     - HUnit
+    - doctest
